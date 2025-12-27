@@ -1,0 +1,48 @@
+const path = require('path')
+const HtmlWebpackPlugin = require('html-webpack-plugin')
+const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin')
+
+module.exports = {
+	// 1. 入口 (Entry)
+  // Webpack 从这里开始分析依赖图 (Dependency Graph)
+	entry: path.resolve(__dirname, '../src/index.tsx'),
+	// 2. 解析 (Resolve)
+  // 告诉 Webpack 如何寻找模块
+	resolve: {
+		extensions: ['.tsx', '.ts', '.js']
+	},
+	// 模块规则 (Module Rules) - 也就是 Loaders
+	module: {
+		rules: [
+			// === 处理 JS/TS ===
+			{
+				test: /\.(ts|js)x?$/,
+				exclude: /node_modules/,
+				use: ['babel-loader']
+			},
+			// === 处理图片/字体资源 (Webpack 5 新特性) ===
+      // 以前需要 file-loader/url-loader，现在内置了
+			
+			// 针对 SVG 的特殊处理
+			// 只写 type: 'asset'，Webpack 会把它当图片处理，你得到的永远是一个字符串路径，无法像组件那样修改 fill 颜色或 stroke 宽度。
+			{
+				test: /\.svg$/i,
+				issuer: /\.[jt]sx?$/,
+				use: ['@svgr/webpack'], // 把它转成组件
+			},
+			{
+				test: /\.(png|svg|jpg|jpeg|gif)$/i,
+				type: 'asset'
+			}
+		]
+	},
+	plugins: [
+		// 自动把打包后的 js/css 注入到 index.html
+		new HtmlWebpackPlugin({
+			template: path.resolve(__dirname, '../public/index.html'),
+			filename: 'index.html',
+			title: 'Webpack React TS', // 可以在 HTML 中引用 <%= htmlWebpackPlugin.options.title %>
+		}),
+		new ForkTsCheckerWebpackPlugin()
+	]
+}
