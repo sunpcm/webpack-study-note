@@ -2,6 +2,9 @@ import React, { useState } from 'react';
 
 const App = () => {
   const [count, setCount] = useState(0);
+
+  console.log('API Address:', process.env.API_URL);
+
   return (
     <div className="container">
       <h1>Hello Webpack!</h1>

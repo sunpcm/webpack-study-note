@@ -17,6 +17,24 @@ module.exports = merge(comon, {
 		open: true, // 启动后自动打开浏览器
 		compress: true, // 开启 gzip 压缩
 		historyApiFallback: true,
+		proxy: {
+			'/api/datasets': {
+				target: "localhost: 8080",
+				changeOrigin: true,
+				pathRewrite: { '^/api/datasets': '' },
+				logLevel: 'debug',
+				// 如果后端是 https 且证书是自签名的，需要设为 false
+        		secure: false,
+			}
+			'/api/experiments': {
+				target: "localhost: 8081",
+				changeOrigin: true,
+				pathRewrite: { '^/api/experiments': '' },
+				logLevel: 'debug',
+				// 如果后端是 https 且证书是自签名的，需要设为 false
+        		secure: false,
+			}
+		}
 	},
 	module: {
 		rules: [

@@ -1,6 +1,7 @@
 const path = require('path')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin')
+const Dotenv = require('dotenv-webpack');
 
 module.exports = {
 	// 1. 入口 (Entry)
@@ -43,6 +44,11 @@ module.exports = {
 			filename: 'index.html',
 			title: 'Webpack React TS', // 可以在 HTML 中引用 <%= htmlWebpackPlugin.options.title %>
 		}),
-		new ForkTsCheckerWebpackPlugin()
+		new ForkTsCheckerWebpackPlugin(),
+		new Dotenv({
+			// 智能选择：如果是 dev 环境，就读 .env.development
+			// 如果是 prod 环境，就读 .env.production
+			path: path.resolve(__dirname, `../.env.${process.env.NODE_ENV}`), 
+    	}),
 	]
 }
