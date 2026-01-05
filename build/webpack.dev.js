@@ -1,8 +1,8 @@
 const { merge } = require('webpack-merge');
-const comon = require('./webpack.common.js')
+const common = require('./webpack.common.js')
 const path = require('path')
 
-module.exports = merge(comon, {
+module.exports = merge(common, {
 	mode: 'development',
 	// 源码映射 (Source Map)
   // 决定了你在浏览器 F12 里看到的是什么代码
@@ -17,24 +17,25 @@ module.exports = merge(comon, {
 		open: true, // 启动后自动打开浏览器
 		compress: true, // 开启 gzip 压缩
 		historyApiFallback: true,
-		proxy: {
-			'/api/datasets': {
-				target: "localhost: 8080",
+		proxy: [{
+				context: ['/api/datasets'],
+				target: "http://localhost:8080",
 				changeOrigin: true,
 				pathRewrite: { '^/api/datasets': '' },
 				logLevel: 'debug',
 				// 如果后端是 https 且证书是自签名的，需要设为 false
         		secure: false,
-			}
-			'/api/experiments': {
-				target: "localhost: 8081",
+			},
+			{
+				context: ['/api/experiments'],
+				target: "http://localhost:8081",
 				changeOrigin: true,
 				pathRewrite: { '^/api/experiments': '' },
 				logLevel: 'debug',
 				// 如果后端是 https 且证书是自签名的，需要设为 false
         		secure: false,
 			}
-		}
+		]
 	},
 	module: {
 		rules: [

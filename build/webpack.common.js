@@ -62,4 +62,4 @@ const config = {
 }
 
 
-module.exports = smp.wrap(config);
+module.exports = process.env.MEASURE ? smp.wrap(config) : config;

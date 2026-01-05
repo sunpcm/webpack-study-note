@@ -5,7 +5,14 @@
   "main": "index.js",
   "scripts": {
     "start": "cross-env NODE_ENV=development webpack serve --config build/webpack.dev.js",
-    "build": "cross-env NODE_ENV=development webpack --config build/webpack.prod.js"
+    "build": "cross-env NODE_ENV=production webpack --config build/webpack.prod.js",
+    "build:dev": "cross-env NODE_ENV=development webpack --config build/webpack.prod.js",
+    "build:analyze": "cross-env NODE_ENV=production MEASURE=true webpack --config build/webpack.prod.js",
+    "clean": "rimraf dist .webpack_cache node_modules/.cache",
+    "clean:all": "rimraf dist .webpack_cache node_modules/.cache node_modules pnpm-lock.yaml",
+    "clean:build": "rimraf dist",
+    "clean:cache": "rimraf .webpack_cache node_modules/.cache",
+    "clean:modules": "rimraf node_modules pnpm-lock.yaml"
   },
   "keywords": [],
   "author": "",
@@ -14,6 +21,7 @@
   "dependencies": {
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
+    "scheduler": "^0.27.0",
     "webpack": "^5.104.1",
     "webpack-cli": "^6.0.1",
     "webpack-dev-server": "^5.2.2",
@@ -30,6 +38,7 @@
     "babel-loader": "^10.0.0",
     "cross-env": "^10.1.0",
     "css-loader": "^7.1.2",
+    "css-minimizer-webpack-plugin": "^7.0.4",
     "dotenv-webpack": "^8.1.1",
     "fork-ts-checker-webpack-plugin": "^9.1.0",
     "html-webpack-plugin": "^5.6.5",
@@ -38,6 +47,7 @@
     "sass-loader": "^16.0.6",
     "speed-measure-webpack-plugin": "^1.5.0",
     "style-loader": "^4.0.0",
+    "terser-webpack-plugin": "^5.3.16",
     "typescript": "^5.9.3",
     "webpack-bundle-analyzer": "^5.1.0"
   }

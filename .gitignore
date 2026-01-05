@@ -25,3 +25,7 @@ yarn-error.log*
 
 # misc
 *.tsbuildinfo
+
+# Webpack 缓存
+.webpack_cache/
+node_modules/.cache/
