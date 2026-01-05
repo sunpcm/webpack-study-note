@@ -2,8 +2,13 @@ const path = require('path')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin')
 const Dotenv = require('dotenv-webpack');
+// const BuildTimePlugin = require('./plugins/build-time-plugin')
+// const BundleSizeMonitorPlugin = require('./plugins/bundle-size-monitor-plugin')
+const SpeedMeasurePlugin = require("speed-measure-webpack-plugin");
 
-module.exports = {
+const smp = new SpeedMeasurePlugin();
+
+const config = {
 	// 1. 入口 (Entry)
   // Webpack 从这里开始分析依赖图 (Dependency Graph)
 	entry: path.resolve(__dirname, '../src/index.tsx'),
@@ -50,5 +55,11 @@ module.exports = {
 			// 如果是 prod 环境，就读 .env.production
 			path: path.resolve(__dirname, `../.env.${process.env.NODE_ENV}`), 
     	}),
+		// new BuildTimePlugin(),
+		// new BundleSizeMonitorPlugin()
+
 	]
 }
+
+
+module.exports = smp.wrap(config);

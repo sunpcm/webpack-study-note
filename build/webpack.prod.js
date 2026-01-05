@@ -18,9 +18,8 @@ module.exports = merge(common, {
 			filename: '[name].[contenthash].css'
 		}),
 		new BundleAnalyzerPlugin({
-			// analyzerMode: 'server', // 默认模式：启动一个 HTTP 服务器展示
 			analyzerMode: 'static', // 推荐模式：生成一个 HTML 文件 (不占用端口，方便查看)
-			openAnalyzer: true,     // 构建完自动打开浏览器
+			openAnalyzer: false,     // 构建完自动打开浏览器
 			reportFilename: 'bundle-report.html', // 生成的文件名
 		}),
 	],
