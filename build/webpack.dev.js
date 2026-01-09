@@ -1,15 +1,17 @@
 const { merge } = require('webpack-merge');
 const common = require('./webpack.common.js')
 const path = require('path')
+const ReactRefreshWebpackPlugin = require('@pmmmwh/react-refresh-webpack-plugin'); // ✅ 新增
+
 
 module.exports = merge(common, {
 	mode: 'development',
 	// 源码映射 (Source Map)
-  // 决定了你在浏览器 F12 里看到的是什么代码
-  // eval-source-map: 构建速度中等，重构建速度快，质量高（能看到源码原始行号）
+  	// 决定了你在浏览器 F12 里看到的是什么代码
+  	// eval-source-map: 构建速度中等，重构建速度快，质量高（能看到源码原始行号）
 	devtool: 'eval-source-map',
 	// 开发服务器 (DevServer)
-  // 这是一个基于 Express 的小型服务器，把资源跑在内存里
+  	// 这是一个基于 Express 的小型服务器，把资源跑在内存里
 	devServer: {
 		static: path.resolve(__dirname, '../dist'), // 静态文件目录
 		port: 3000,
@@ -37,6 +39,12 @@ module.exports = merge(common, {
 			}
 		]
 	},
+	    plugins: [
+        // ✅ 新增：React Fast Refresh 插件
+        new ReactRefreshWebpackPlugin({
+            overlay: false, // 可选：不显示错误覆盖层
+        }),
+    ],
 	module: {
 		rules: [
 			{
