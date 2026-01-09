@@ -1,5 +1,8 @@
 {
   "compilerOptions": {
+
+    "forceConsistentCasingInFileNames": true,
+
     // === 编译输出控制 ===
     "target": "ESNext",
     "module": "ESNext", // 保持 import/export 语句
