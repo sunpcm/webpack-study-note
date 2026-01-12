@@ -47,12 +47,21 @@ module.exports = merge(common, {
     ],
 	module: {
 		rules: [
-			{
-				test: /\.(css|scss)$/,
-				use: [
-					'style-loader', // 把 JS 里的 CSS 插入到 HTML 的 <style> 标签
-					'css-loader', // 把 CSS 转换成 CommonJS 模块
-					'sass-loader' // 把 SCSS 编译成 CSS
+					{
+						test: /\.(css|scss)$/,
+						use: [
+							"style-loader",
+					{
+						loader: "css-loader",
+						options: { importLoaders: 1, sourceMap: true },
+					},
+					{
+						loader: "postcss-loader",
+						options: {
+						sourceMap: true,
+						postcssOptions: { plugins: ["@tailwindcss/postcss", "autoprefixer"] },
+						},
+					},
 				]
 			}
 		]
