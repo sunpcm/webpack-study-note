@@ -13,20 +13,12 @@ module.exports = merge(common, {
     path: path.resolve(__dirname, "../dist"),
     filename: "[name].[contenthash:8].js",
     clean: true,
-	assetModuleFilename: "assets/[hash:8][ext][query]",
-	pathinfo: false,
+	  assetModuleFilename: "assets/[hash:8][ext][query]",
   },
   performance: {
     hints: "warning",
-    maxEntrypointSize: 512000, // 512KB
+    maxEntrypointSize: 1024000, // 1MB
     maxAssetSize: 512000,
-  },
-  cache: {
-    type: "filesystem",
-    cacheDirectory: path.resolve(__dirname, "../.webpack_cache"),
-    buildDependencies: {
-      config: [__filename],
-    },
   },
   plugins: [
     // 1. CSS 提取
@@ -65,7 +57,7 @@ module.exports = merge(common, {
             options: {
               sourceMap: true,
               // PostCSS 自动添加前缀
-              importLoaders: 2,
+              importLoaders: 1,
             },
           },
           {
@@ -74,7 +66,8 @@ module.exports = merge(common, {
               sourceMap: true,
               postcssOptions: {
                 plugins: [
-                  ["autoprefixer"]
+                  "@tailwindcss/postcss", 
+                  "autoprefixer"
                 ],
               },
             },
@@ -121,60 +114,6 @@ module.exports = merge(common, {
         parallel: true,
       }),
     ],
-
-    // ✅ 代码分割配置（最重要！）
-    splitChunks: {
-      chunks: "all",
-      minSize: 20000, // 最小 20KB
-      maxAsyncRequests: 30,
-      maxInitialRequests: 30,
-      minChunks: 1,
-      enforceSizeThreshold: 50000,
-      cacheGroups: {
-        react: {
-          test: /[\\/]node_modules[\\/](react|react-dom)[\\/]/,
-          name: "react-vendor",
-          priority: 30,
-          reuseExistingChunk: true,
-          enforce: true,
-        },
-
-        libs: {
-          test: (module) => {
-            return (
-              module.context &&
-              module.context.includes("node_modules") &&
-              !module.context.includes("react")
-            );
-          },
-          name: "libs-vendor",
-          priority: 20,
-          reuseExistingChunk: true,
-        },
-
-        common: {
-          minChunks: 2,
-          priority: 10,
-          reuseExistingChunk: true,
-          name: "common",
-        },
-
-        styles: {
-          name: "styles",
-          type: "css/mini-extract",
-          chunks: "all",
-          enforce: true,
-        },
-      },
-    },
-
-    // ✅ 运行时 chunk 单独打包（重要！）
-    runtimeChunk: {
-      name: "runtime",
-    },
-
-    // ✅ 模块 ID 算法
-    moduleIds: "deterministic", // 防止 module id 变化导致缓存失效
   },
 
   // ✅ 解析配置

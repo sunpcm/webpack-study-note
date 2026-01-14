@@ -57,6 +57,7 @@
     "style-loader": "^4.0.0",
     "tailwindcss": "^4.1.18",
     "terser-webpack-plugin": "^5.3.16",
+    "thread-loader": "^4.0.4",
     "typescript": "^5.9.3",
     "webpack-bundle-analyzer": "^5.1.0"
   },

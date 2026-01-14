@@ -13,7 +13,7 @@ module.exports = merge(common, {
 	// 开发服务器 (DevServer)
   	// 这是一个基于 Express 的小型服务器，把资源跑在内存里
 	devServer: {
-		static: path.resolve(__dirname, '../dist'), // 静态文件目录
+		static: path.resolve(__dirname, '../public'), // 静态文件目录
 		port: 3000,
 		hot: true, // 开启热模块替换 (HMR)
 		open: true, // 启动后自动打开浏览器
@@ -41,9 +41,7 @@ module.exports = merge(common, {
 	},
 	    plugins: [
         // ✅ 新增：React Fast Refresh 插件
-        new ReactRefreshWebpackPlugin({
-            overlay: false, // 可选：不显示错误覆盖层
-        }),
+        new ReactRefreshWebpackPlugin(),
     ],
 	module: {
 		rules: [
