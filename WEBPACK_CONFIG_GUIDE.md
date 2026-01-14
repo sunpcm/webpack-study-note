@@ -1,22 +1,50 @@
-# Webpack 配置详解指南
+# 🎯 Webpack 5 + React + TypeScript 配置完全指南
 
-> 本文档详细解释项目中所有 Webpack 相关配置文件的作用和原理。
+> 本文档详细讲解了一个现代化前端项目的完整 Webpack 配置，包含所有优化技巧和最佳实践。
 
-## 📁 项目配置文件结构
+---
+
+## 📁 项目结构
 
 ```
-├── build/
-│   ├── webpack.common.js      # 通用配置（开发/生产共享）
-│   ├── webpack.dev.js         # 开发环境配置
-│   ├── webpack.prod.js        # 生产环境配置
-│   └── plugins/
-│       ├── build-time-plugin.js        # 构建时间监控插件（未启用）
-│       └── bundle-size-monitor-plugin.js # 包体积监控插件（未启用）
-├── babel.config.js            # Babel 编译配置
-├── postcss.config.mjs         # PostCSS 配置
-├── tsconfig.json              # TypeScript 配置
-└── package.json               # 项目依赖和脚本
+webpack-study-note/
+├── build/                          # Webpack 配置目录
+│   ├── webpack.common.js          # 通用配置（开发/生产共享）
+│   ├── webpack.dev.js             # 开发环境配置
+│   ├── webpack.prod.js            # 生产环境配置
+│   └── plugins/                   # 自定义插件（示例）
+│       ├── build-time-plugin.js
+│       └── bundle-size-monitor-plugin.js
+├── src/                           # 源代码
+├── public/                        # 静态资源
+├── .env.development              # 开发环境变量
+├── .env.production               # 生产环境变量
+├── babel.config.js               # Babel 配置
+├── postcss.config.mjs            # PostCSS 配置（Tailwind CSS）
+├── tsconfig.json                 # TypeScript 配置
+└── package.json                  # 依赖和脚本
 ```
+
+---
+
+## 🏗️ 配置架构设计
+
+### **三层配置模式**
+
+```
+webpack.common.js  ← 通用配置（入口、解析、基础 loader、代码分割）
+       ↓
+   ┌───┴────────────────┐
+   ↓                    ↓
+webpack.dev             webpack.prod  ← 环境特定配置
+  (HMR + Fast Refresh)              (压缩 + CSS 提取)
+```
+
+**设计原则：**
+- ✅ **DRY（Don't Repeat Yourself）**：公共配置只写一次
+- ✅ **环境分离**：开发和生产各司其职
+- ✅ **代码分割统一**：开发和生产都启用代码分割，保持环境一致性
+- ✅ **易维护**：修改通用配置影响所有环境
 
 ---
 
@@ -129,6 +157,8 @@ module.exports = process.env.MEASURE ? smp.wrap(config) : config;
 
 开发配置的核心目标：**快速构建 + 热更新 + 调试友好**
 
+> ⚠️ **重要**：代码分割配置在 `webpack.common.js` 中，开发和生产环境都会应用。
+
 ### 2.1 基础配置
 
 ```js
@@ -189,9 +219,7 @@ proxy: [
 
 ```js
 plugins: [
-  new ReactRefreshWebpackPlugin({
-    overlay: false,  // 错误时不显示全屏覆盖层
-  })
+  new ReactRefreshWebpackPlugin()
 ]
 ```
 
@@ -240,6 +268,8 @@ plugins: [
 ## 🚀 3. webpack.prod.js - 生产环境配置
 
 生产配置的核心目标：**体积最小 + 加载最快 + 缓存最优**
+
+> ⚠️ **重要**：代码分割配置在 `webpack.common.js` 中，开发和生产环境都会应用。
 
 ### 3.1 输出配置
 
@@ -344,38 +374,43 @@ new CssMinimizerPlugin({
 
 ### 3.6 代码分割 (splitChunks) ⭐ 最重要
 
+> ⚠️ **配置位置**：代码分割配置在 `webpack.common.js` 中，不在 `webpack.prod.js`！
+> 
+> **原因**：开发和生产环境都需要代码分割，统一配置可以保持环境一致性。
+
 ```js
-splitChunks: {
-  chunks: 'all',          // 同步 + 异步 chunk 都分割
-  minSize: 20000,         // 最小 20KB 才分割
-  
-  cacheGroups: {
-    // 🔹 React 核心库单独打包
-    react: {
-      test: /[\\/]node_modules[\\/](react|react-dom)[\\/]/,
-      name: 'react-vendor',
-      priority: 30,        // 优先级最高
-    },
+// 位于 webpack.common.js
+optimization: {
+  runtimeChunk: 'single',
+  splitChunks: {
+    chunks: 'all',          // 同步 + 异步 chunk 都分割
     
-    // 🔹 其他第三方库
-    libs: {
-      test: /node_modules/,
-      name: 'libs-vendor',
-      priority: 20,
+    cacheGroups: {
+      // 🔹 React 核心库单独打包
+      react: {
+        test: /[\\/]node_modules[\\/](react|react-dom|react-router-dom)[\\/]/,
+        name: 'react-vendor',
+        priority: 10,
+        reuseExistingChunk: true,
+      },
+      
+      // 🔹 其他第三方库
+      vendor: {
+        test: /[\\/]node_modules[\\/]/,
+        name: 'vendor',
+        priority: 5,
+        reuseExistingChunk: true,
+      },
+      
+      // 🔹 公共业务代码
+      common: {
+        name: 'common',
+        minChunks: 2,        // 被引用 2 次以上才提取
+        priority: 1,
+        reuseExistingChunk: true,
+      },
     },
-    
-    // 🔹 公共业务代码
-    common: {
-      minChunks: 2,        // 被引用 2 次以上才提取
-      name: 'common',
-      priority: 10,
-    },
-    
-    // 🔹 CSS 单独分组
-    styles: {
-      type: 'css/mini-extract',
-      enforce: true,
-    },
+  },
   },
 }
 ```
@@ -384,8 +419,8 @@ splitChunks: {
 ```
 dist/
 ├── runtime.a1b2c3.js      ← Webpack 运行时
-├── react-vendor.d4e5f6.js ← React + ReactDOM
-├── libs-vendor.g7h8i9.js  ← 其他 npm 包
+├── react-vendor.d4e5f6.js ← React + ReactDOM + React Router
+├── vendor.g7h8i9.js       ← 其他 npm 包
 ├── common.j0k1l2.js       ← 公共业务代码
 ├── main.m3n4o5.js         ← 入口业务代码
 └── css/
@@ -398,15 +433,17 @@ dist/
 |----|----------|----------|
 | `runtime` | 每次构建 | 短期缓存 |
 | `react-vendor` | 几个月一次 | 长期缓存 |
-| `libs-vendor` | 偶尔 | 中期缓存 |
+| `vendor` | 偶尔 | 中期缓存 |
+| `common` | 较频繁 | 中期缓存 |
 | `main` | 频繁 | 短期缓存 |
 
 ### 3.7 运行时 Chunk
 
+> ⚠️ **配置位置**：`runtimeChunk` 配置在 `webpack.common.js` 中，不在 `webpack.prod.js`！
+
 ```js
-runtimeChunk: {
-  name: 'runtime',  // Webpack 的启动代码单独打包
-}
+// 位于 webpack.common.js
+runtimeChunk: 'single',  // Webpack 的启动代码单独打包
 ```
 
 **作用**：避免业务代码未变但 hash 变化的问题。
@@ -659,17 +696,20 @@ compiler.hooks.done.tap('BundleSizeMonitorPlugin', (stats) => {
 - ✅ 启用 React Fast Refresh 保持状态
 - ✅ 使用 `style-loader` 加速 CSS HMR
 - ✅ 配置 Proxy 解决跨域
+- ✅ 代码分割：开发环境也启用，保持与生产一致
 
 ### 生产环境优化
 
-- ✅ 代码分割：React 单独打包，长期缓存
 - ✅ `contenthash` 命名：内容变化才改 hash
 - ✅ TerserPlugin：压缩 + 移除 console
 - ✅ MiniCssExtractPlugin：CSS 单独文件
 - ✅ Tree Shaking：移除未使用代码
+- ✅ 代码分割：React 单独打包，长期缓存
 
-### 通用优化
+### 通用优化（开发 + 生产）
 
+- ✅ **代码分割**：在 `webpack.common.js` 中统一配置
+- ✅ **运行时提取**：`runtimeChunk: 'single'` 优化缓存
 - ✅ 文件系统缓存：二次构建提速
 - ✅ `ForkTsCheckerWebpackPlugin`：TS 检查不阻塞
 - ✅ Babel `transform-runtime`：复用 helper
